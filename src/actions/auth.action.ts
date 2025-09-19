@@ -30,7 +30,7 @@ export const loginAction = async (
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/profile/user",
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
