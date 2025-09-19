@@ -6,29 +6,22 @@ const protectedRoutes = ["/profile/admin", "/profile/user"];
 
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
+ const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const pathname = request.nextUrl.pathname;
 
-  const { pathname } = request.nextUrl;
-
-  // لو المستخدم غير مسجل دخول و يحاول يدخل صفحة محمية
-  if (!token && protectedRoutes.some((route) => pathname.startsWith(route))) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (!token && authPages.some(path => pathname.startsWith(path))) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // لو المستخدم ADMIN و يحاول يدخل صفحة USER فقط (اختياري)
-  if (token && pathname.startsWith("/profile/admin") && token.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/profile/user", request.url));
-  }
+  // // لو المستخدم ADMIN و يحاول يدخل صفحة USER فقط (اختياري)
+  // if (token && pathname.startsWith("/profile/admin") && token.role !== "ADMIN") {
+  //   return NextResponse.redirect(new URL("/profile/user", request.url));
+  // }
 
-  // لو المستخدم USER و يحاول يدخل صفحة ADMIN فقط (اختياري)
-  if (token && pathname.startsWith("/profile/user") && token.role !== "USER") {
-    return NextResponse.redirect(new URL("/profile/admin/Home", request.url));
-  }
+  // // لو المستخدم USER و يحاول يدخل صفحة ADMIN فقط (اختياري)
+  // if (token && pathname.startsWith("/profile/user") && token.role !== "USER") {
+  //   return NextResponse.redirect(new URL("/profile/admin/Home", request.url));
+  // }
 
   return NextResponse.next();
 }
