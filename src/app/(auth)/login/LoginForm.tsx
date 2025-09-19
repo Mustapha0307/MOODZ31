@@ -1,4 +1,3 @@
-
 "use client";
 import { IoMdLogIn } from "react-icons/io";
 import { useState } from "react";
@@ -7,9 +6,11 @@ import { loginAction } from "@/actions/auth.action";
 import Alert from "@/components/Alert";
 import Spinner from "@/components/Spinner";
 import {useRouter} from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function LoginForm() {
   const router = useRouter()
+  const {update} = useSession()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -31,11 +32,13 @@ export default function LoginForm() {
     setLoading(true);
 
     loginAction({ email, password })
-      .then((result) => {
+      .then(async (result) => {
         if (result.success) {
           setClientError("");
           setserverError("");
           setServerSuccess(result.message || "");
+
+          await update()
           router.push("/profile/user")
           
         } else {
