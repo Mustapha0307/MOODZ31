@@ -166,7 +166,7 @@ export default function OrderDo() {
     setTable(true);
     setCategory(false);
     setSelectTable(TN);
-    selectTableAction(tableId, userId).then((res) => {
+    selectTableAction(tableId, userId!).then((res) => {
       if (res?.success) {
         toast.success(res.message);
       }
@@ -208,7 +208,7 @@ export default function OrderDo() {
       if (!validation.success)
         return toast.error(validation.error.errors[0].message);
 
-      await ValidOrderAction(userId, note).then((res) => {
+      await ValidOrderAction(userId!, note).then((res) => {
         if (res?.success) {
           toast.success(res.message);
         }
