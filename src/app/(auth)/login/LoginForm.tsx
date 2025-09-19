@@ -39,7 +39,7 @@ export default function LoginForm() {
           setServerSuccess(result.message || "");
 
           await update()
-          router.push("/profile/user")
+          router.replace("/profile/user")
           
         } else {
         setClientError(result.message || "Invalid credentials");
