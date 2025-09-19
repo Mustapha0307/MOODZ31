@@ -31,7 +31,6 @@ export const loginAction = async (
       email,
       password,
       redirect: false,
-      callbackUrl: "/profile/user",
     });
   } catch (error) {
     if (error instanceof AuthError) {
