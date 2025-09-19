@@ -7,9 +7,10 @@ import Alert from "@/components/Alert";
 import Spinner from "@/components/Spinner";
 import SocialProviders from "@/components/SocialProviders";
 import Link from "next/link";
-import router from "next/router";
+import {useRouter} from "next/router";
 
 export default function LoginForm() {
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
