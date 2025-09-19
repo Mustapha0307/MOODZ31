@@ -6,23 +6,15 @@ const protectedRoutes = ["/profile/admin", "/profile/user"];
 
 
 export async function middleware(request: NextRequest) {
- const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
   const pathname = request.nextUrl.pathname;
 
+  // لو كان المسار محمي وماكانش توكن -> روح للّوجين
   if (!token && protectedRoutes.some(path => pathname.startsWith(path))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // // لو المستخدم ADMIN و يحاول يدخل صفحة USER فقط (اختياري)
-  // if (token && pathname.startsWith("/profile/admin") && token.role !== "ADMIN") {
-  //   return NextResponse.redirect(new URL("/profile/user", request.url));
-  // }
-
-  // // لو المستخدم USER و يحاول يدخل صفحة ADMIN فقط (اختياري)
-  // if (token && pathname.startsWith("/profile/user") && token.role !== "USER") {
-  //   return NextResponse.redirect(new URL("/profile/admin/Home", request.url));
-  // }
-
+  // لو عندو توكن، خلّيه يمر عادي
   return NextResponse.next();
 }
 
