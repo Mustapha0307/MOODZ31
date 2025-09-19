@@ -7,10 +7,12 @@ import Alert from "@/components/Alert";
 import Spinner from "@/components/Spinner";
 import {useRouter} from "next/navigation";
 import { useSession } from "next-auth/react";
+import { auth } from "@/auth";
 
 export default function LoginForm() {
   const router = useRouter()
   const {update} = useSession()
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -33,13 +35,20 @@ export default function LoginForm() {
 
     loginAction({ email, password })
       .then(async (result) => {
+          const session = await auth()
         if (result.success) {
           setClientError("");
           setserverError("");
           setServerSuccess(result.message || "");
 
           await update()
-          router.replace("/profile/user")
+
+          if (session?.user.role === "USER"){
+            router.replace("/profile/user")
+          }
+          if (session?.user.role === "ADMIN"){
+            router.replace("/profile/admin")
+          }
           
         } else {
         setClientError(result.message || "Invalid credentials");
