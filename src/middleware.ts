@@ -2,33 +2,31 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const authPages = ["/profile/admin", "/profile/user"];
+// const authPages = ["/profile/admin", "/profile/user"];
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
-  const pathname = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
-  if (!token && authPages.some(path => pathname.startsWith(path))) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // إذا ماكانش token و رايح لصفحات محمية
+  if (!token && (pathname.startsWith("/profile/admin") || pathname.startsWith("/profile/user"))) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", request.url); // باش يرجعو للصفحة الأصلية بعد تسجيل الدخول
+    return NextResponse.redirect(loginUrl);
   }
 
   if (token) {
-    const role = token.role;
+    const role = token.role as string;
     console.log("User role from token:", role);
 
-    // Only ADMIN can access /profile/admin, others are redirected
-    if (
-      pathname.startsWith("/profile/user") &&
-      role === "USER" &&
-      pathname !== "/profile/user"){
+    // منع وصول USER لصفحة admin
+    if (pathname.startsWith("/profile/admin") && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/profile/user", request.url));
-      }
-    if (pathname === "/profile/user" && role === "ADMIN") {
-      return NextResponse.redirect(new URL("/profile/admin/Home", request.url));
     }
 
-    if (pathname.startsWith("/profile/user") && role === "ADMIN") {
-      return NextResponse.redirect(new URL("/profile/admin/Home", request.url));
+    // منع وصول ADMIN لصفحة user
+    if (pathname.startsWith("/profile/user") && role !== "USER") {
+      return NextResponse.redirect(new URL("/profile/admin", request.url));
     }
   }
 
@@ -37,12 +35,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/login",
-    "/register",
-    "/verify",
     "/profile/:path*",
-    "/forgot-password",
-    "/reset-password",
   ],
 };
 
