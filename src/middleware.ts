@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
   const pathname = request.nextUrl.pathname;
 
-  if (!token && authPages.some(path => pathname.startsWith(path))) {
+  if (!token && protectedRoutes.some(path => pathname.startsWith(path))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
