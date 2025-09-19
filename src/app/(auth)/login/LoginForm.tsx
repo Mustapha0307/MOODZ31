@@ -45,22 +45,29 @@ export default function LoginForm() {
 
           // بعد التحديث جيب session جديدة
           const newSession = await update();
-          
-          console.log("Role: ",newSession?.user.role);
-          if (newSession?.user.role === "USER") {
-            router.replace("/profile/user");
-          }if (newSession?.user.role === "ADMIN") {
-            router.replace("/profile/admin/Home");
-          }
+
+          setTimeout(() => {
+            console.log("Role: ", newSession?.user.role);
+            if (newSession?.user.role === "USER") {
+              router.replace("/profile/user");
+            }
+            if (newSession?.user.role === "ADMIN") {
+              router.replace("/profile/admin/Home");
+            }
+          }, 2000);
         } else {
           setClientError(result.message || "Invalid credentials");
         }
       })
       .catch(() => {
         setserverError("Something went wrong front");
-        setServerSuccess("")
+        setServerSuccess("");
       })
-      .finally(() => setLoading(false));
+      .finally(() =>
+        setTimeout(() => {
+          setLoading(false);
+        }, 3000)
+      );
   };
 
   return (
