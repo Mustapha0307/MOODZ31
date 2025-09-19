@@ -5,13 +5,13 @@ import { LoginSchema } from "@/utils/validationSchemas";
 import { loginAction } from "@/actions/auth.action";
 import Alert from "@/components/Alert";
 import Spinner from "@/components/Spinner";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { auth } from "@/auth";
 
 export default function LoginForm() {
-  const router = useRouter()
-  const {update} = useSession()
+  const router = useRouter();
+  const { update } = useSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,32 +35,32 @@ export default function LoginForm() {
 
     loginAction({ email, password })
       .then(async (result) => {
-          const session = await auth()
         if (result.success) {
           setClientError("");
           setserverError("");
           setServerSuccess(result.message || "");
 
-          await update()
+          // إعادة جلب session باش تتحدث
+          await update();
 
-          if (session?.user.role === "USER"){
-            router.replace("/profile/user")
-          }
-          if (session?.user.role === "ADMIN"){
-            router.replace("/profile/admin")
-          }
+          // بعد التحديث جيب session جديدة
+          const newSession = await update();
           
+          console.log("Role: ",newSession?.user.role);
+          if (newSession?.user.role === "USER") {
+            router.replace("/profile/user");
+          }if (newSession?.user.role === "ADMIN") {
+            router.replace("/profile/admin/Home");
+          }
         } else {
-        setClientError(result.message || "Invalid credentials");
-      }
-
-        
-        setLoading(false);
+          setClientError(result.message || "Invalid credentials");
+        }
       })
       .catch(() => {
-        setLoading(false);
         setserverError("Something went wrong front");
-      }).finally(() => setLoading(false));
+        setServerSuccess("")
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -131,7 +131,6 @@ export default function LoginForm() {
           </>
         )}
       </button>
-
     </form>
   );
 }
