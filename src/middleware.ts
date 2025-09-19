@@ -4,17 +4,18 @@ import { getToken } from "next-auth/jwt";
 
 const protectedRoutes = ["/profile/admin", "/profile/user"];
 
-
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
   const pathname = request.nextUrl.pathname;
 
-  // لو كان المسار محمي وماكانش توكن -> روح للّوجين
+  // الصفحات المحمية فقط
+  const protectedRoutes = ["/profile/user", "/profile/admin"];
+
   if (!token && protectedRoutes.some(path => pathname.startsWith(path))) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    // ما تديرش redirect هنا، غير رجع 401
+    return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  // لو عندو توكن، خلّيه يمر عادي
   return NextResponse.next();
 }
 
