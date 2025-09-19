@@ -7,6 +7,7 @@ import Alert from "@/components/Alert";
 import Spinner from "@/components/Spinner";
 import SocialProviders from "@/components/SocialProviders";
 import Link from "next/link";
+import router from "next/router";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ export default function LoginForm() {
           setClientError("");
           setserverError("");
           setServerSuccess(result.message || "");
-
+          router.push("/profile/user")
           
         }
         
